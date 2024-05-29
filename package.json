@@ -37,7 +37,8 @@
     }
   },
   "scripts": {
-    "test": "pnpm build && del /Q \"./node_modules/.mkcert\" && vite -c playground/vite.config.ts --clearScreen false",
+    "test": "pnpm build && rm -rf \"./node_modules/.mkcert\" && vite -c playground/vite.config.ts --clearScreen false",
+    "test:windows": "pnpm build && del /Q \"./node_modules/.mkcert\" && vite -c playground/vite.config.ts --clearScreen false",
     "build": "tsx ./script/build.mts",
     "lint": "tsc --noEmit && eslint \"plugin/**/*.ts\" --color --quiet",
     "release": "semantic-release"

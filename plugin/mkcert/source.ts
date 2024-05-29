@@ -1,6 +1,9 @@
+import path from 'path'
+
 import { Octokit } from '@octokit/rest'
 
 import request from '../lib/request'
+import { readDir } from '../lib/util'
 
 export type SourceInfo = {
   version: string
@@ -128,6 +131,37 @@ export class CodingSource extends BaseSource {
     const downloadUrl = FileData.Response.Url
 
     if (!downloadUrl) {
+      return undefined
+    }
+
+    return {
+      downloadUrl,
+      version
+    }
+  }
+}
+
+/**
+ * Download mkcert from github.com
+ */
+export class LocalSource extends BaseSource {
+  public static create() {
+    return new LocalSource()
+  }
+
+  private constructor() {
+    super()
+  }
+
+  public async getSourceInfo(): Promise<SourceInfo | undefined> {
+    const platformIdentifier = this.getPlatformIdentifier()
+    const binariesPath = path.join(__dirname, '../../binaries')
+    const files = await readDir(binariesPath)
+    const downloadUrl = files.find((file: string) =>
+      file.includes(platformIdentifier)
+    )
+    const version = downloadUrl?.split('-')[1] || '1.0'
+    if (!(version && downloadUrl)) {
       return undefined
     }
 

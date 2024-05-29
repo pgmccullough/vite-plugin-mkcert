@@ -1,6 +1,6 @@
 import { Logger } from 'vite';
 import { BaseSource } from './source';
-export type SourceType = 'github' | 'coding' | BaseSource;
+export type SourceType = 'github' | 'coding' | 'local' | BaseSource;
 export type MkcertBaseOptions = {
     /**
      * Whether to force generate

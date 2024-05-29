@@ -145,12 +145,12 @@ var deepMerge = (target, ...source) => {
 var prettyLog = (obj) => {
   return JSON.stringify(obj, null, 2);
 };
-var escape = (path5) => {
-  return `"${path5}"`;
+var escape = (path6) => {
+  return `"${path6}"`;
 };
 
 // plugin/mkcert/index.ts
-var import_path4 = __toESM(require("path"));
+var import_path5 = __toESM(require("path"));
 var import_process = __toESM(require("process"));
 var import_picocolors = __toESM(require("picocolors"));
 
@@ -279,6 +279,7 @@ var Record = class {
 var record_default = Record;
 
 // plugin/mkcert/source.ts
+var import_path4 = __toESM(require("path"));
 var import_rest = require("@octokit/rest");
 var BaseSource = class {
   getPlatformIdentifier() {
@@ -373,6 +374,30 @@ var CodingSource = class _CodingSource extends BaseSource {
     };
   }
 };
+var LocalSource = class _LocalSource extends BaseSource {
+  static create() {
+    return new _LocalSource();
+  }
+  constructor() {
+    super();
+  }
+  async getSourceInfo() {
+    const platformIdentifier = this.getPlatformIdentifier();
+    const binariesPath = import_path4.default.join(__dirname, "../../binaries");
+    const files = await readDir(binariesPath);
+    const downloadUrl = files.find(
+      (file) => file.includes(platformIdentifier)
+    );
+    const version = downloadUrl?.split("-")[1] || "1.0";
+    if (!(version && downloadUrl)) {
+      return void 0;
+    }
+    return {
+      downloadUrl,
+      version
+    };
+  }
+};
 
 // plugin/mkcert/version.ts
 var parseVersion = (version) => {
@@ -453,18 +478,20 @@ var Mkcert = class _Mkcert {
     this.logger = logger;
     this.autoUpgrade = autoUpgrade;
     this.localMkcert = mkcertPath;
-    this.savePath = import_path4.default.resolve(savePath);
-    this.keyFilePath = import_path4.default.resolve(savePath, keyFileName);
-    this.certFilePath = import_path4.default.resolve(savePath, certFileName);
+    this.savePath = import_path5.default.resolve(savePath);
+    this.keyFilePath = import_path5.default.resolve(savePath, keyFileName);
+    this.certFilePath = import_path5.default.resolve(savePath, certFileName);
     this.sourceType = source || "github";
     if (this.sourceType === "github") {
       this.source = GithubSource.create();
     } else if (this.sourceType === "coding") {
       this.source = CodingSource.create();
+    } else if (this.sourceType === "local") {
+      this.source = LocalSource.create();
     } else {
       this.source = this.sourceType;
     }
-    this.savedMkcert = import_path4.default.resolve(
+    this.savedMkcert = import_path5.default.resolve(
       savePath,
       import_process.default.platform === "win32" ? "mkcert.exe" : "mkcert"
     );
@@ -485,7 +512,7 @@ var Mkcert = class _Mkcert {
     } else if (await exists(this.savedMkcert)) {
       binary = this.savedMkcert;
     }
-    return binary ? escape(binary) : void 0;
+    return binary;
   }
   async checkCAExists() {
     const files = await readDir(this.savePath);
@@ -499,7 +526,7 @@ var Mkcert = class _Mkcert {
     const commandStatement = `${escape(mkcertBinary)} -CAROOT`;
     debug(`Exec ${commandStatement}`);
     const commandResult = await exec(commandStatement);
-    const caDirPath = import_path4.default.resolve(
+    const caDirPath = import_path5.default.resolve(
       commandResult.stdout.toString().replace(/\n/g, "")
     );
     if (caDirPath === this.savePath) {

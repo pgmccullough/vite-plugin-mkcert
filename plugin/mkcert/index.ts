@@ -21,10 +21,10 @@ import {
 import Config from './config'
 import Downloader from './downloader'
 import Record from './record'
-import { BaseSource, GithubSource, CodingSource } from './source'
+import { BaseSource, GithubSource, CodingSource, LocalSource } from './source'
 import VersionManger from './version'
 
-export type SourceType = 'github' | 'coding' | BaseSource
+export type SourceType = 'github' | 'coding' | 'local' | BaseSource
 
 export type MkcertBaseOptions = {
   /**
@@ -117,6 +117,8 @@ class Mkcert {
       this.source = GithubSource.create()
     } else if (this.sourceType === 'coding') {
       this.source = CodingSource.create()
+    } else if (this.sourceType === 'local') {
+      this.source = LocalSource.create()
     } else {
       this.source = this.sourceType
     }

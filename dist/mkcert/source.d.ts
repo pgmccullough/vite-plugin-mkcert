@@ -37,3 +37,11 @@ export declare class CodingSource extends BaseSource {
     private getPackageName;
     getSourceInfo(): Promise<SourceInfo | undefined>;
 }
+/**
+ * Download mkcert from github.com
+ */
+export declare class LocalSource extends BaseSource {
+    static create(): LocalSource;
+    private constructor();
+    getSourceInfo(): Promise<SourceInfo | undefined>;
+}
