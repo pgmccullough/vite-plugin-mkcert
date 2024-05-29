@@ -128,6 +128,9 @@ class Mkcert {
       process.platform === 'win32' ? 'mkcert.exe' : 'mkcert'
     )
 
+    console.log('hey1: ', this.localMkcert)
+    console.log('hey: ', this.savedMkcert)
+
     this.config = new Config({ savePath: this.savePath })
   }
 
@@ -274,10 +277,11 @@ class Mkcert {
 
   private async initMkcert() {
     const sourceInfo = await this.getSourceInfo()
-
-    debug('The mkcert does not exist, download it now')
-
-    await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert)
+    if (this.sourceType !== 'local') {
+      console.log('The mkcert does not exist, download it now') //DELETE
+      debug('The mkcert does not exist, download it now')
+      await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert)
+    }
   }
 
   private async upgradeMkcert() {
@@ -313,11 +317,15 @@ class Mkcert {
       versionInfo.nextVersion
     )
 
-    await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert)
+    if (this.sourceType !== 'local') {
+      await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert)
+    }
     versionManger.update(versionInfo.nextVersion)
   }
 
   private async downloadMkcert(sourceUrl: string, distPath: string) {
+    console.log('srctype: ', this.sourceType)
+    console.log('time to dl', sourceUrl, distPath) // DELETE
     const downloader = Downloader.create()
     await downloader.download(sourceUrl, distPath)
   }

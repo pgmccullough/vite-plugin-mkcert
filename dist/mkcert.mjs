@@ -460,6 +460,8 @@ var Mkcert = class _Mkcert {
       savePath,
       process2.platform === "win32" ? "mkcert.exe" : "mkcert"
     );
+    console.log("hey1: ", this.localMkcert);
+    console.log("hey: ", this.savedMkcert);
     this.config = new config_default({ savePath: this.savePath });
   }
   async getMkcertBinary() {
@@ -475,6 +477,7 @@ var Mkcert = class _Mkcert {
         );
       }
     } else if (await exists(this.savedMkcert)) {
+      console.log("triegger?");
       binary = this.savedMkcert;
     }
     return binary;
@@ -568,8 +571,11 @@ ${this.certFilePath}`
   }
   async initMkcert() {
     const sourceInfo = await this.getSourceInfo();
-    debug("The mkcert does not exist, download it now");
-    await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert);
+    if (this.sourceType !== "local") {
+      console.log("The mkcert does not exist, download it now");
+      debug("The mkcert does not exist, download it now");
+      await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert);
+    }
   }
   async upgradeMkcert() {
     const versionManger = new version_default({ config: this.config });
@@ -598,10 +604,14 @@ ${this.certFilePath}`
       versionInfo.currentVersion,
       versionInfo.nextVersion
     );
-    await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert);
+    if (this.sourceType !== "local") {
+      await this.downloadMkcert(sourceInfo.downloadUrl, this.savedMkcert);
+    }
     versionManger.update(versionInfo.nextVersion);
   }
   async downloadMkcert(sourceUrl, distPath) {
+    console.log("srctype: ", this.sourceType);
+    console.log("time to dl", sourceUrl, distPath);
     const downloader = downloader_default.create();
     await downloader.download(sourceUrl, distPath);
   }
